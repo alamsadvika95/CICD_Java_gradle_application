@@ -1,0 +1,2 @@
+docker permission 
+    sudo usermod -a -G docker jenkins
