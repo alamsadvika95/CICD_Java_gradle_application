@@ -19,20 +19,20 @@ pipeline{
                 }
             }
         }
-        // stage("Docker Build and Docker Push"){
-        //     steps{
-        //         script{
-        //             withCredentials([string(credentialsId: 'docker_pass', variable: 'docker-password')]) {
-        //                 sh '''
-        //                     docker build -t 104.198.125.254:8083/springapp:${VERSION} . 
-        //                     docker login -u admin -p Sadvikaalam98 104.198.125.254:8083
-        //                     docker push 104.198.125.254:8083/springapp:${VERSION}
-        //                     docker rmi 104.198.125.254:8083/springapp:${VERSION}
-        //                 '''
-        //             }   
-        //         }
-        //     }
-        // }
+        stage("Docker Build and Docker Push"){
+            steps{
+                script{
+                    withCredentials([string(credentialsId: 'docker_pass', variable: 'docker-password')]) {
+                        sh '''
+                            docker build -t 104.198.125.254:8083/springapp:${VERSION} . 
+                            docker login -u admin -p Sadvikaalam98 104.198.125.254:8083
+                            docker push 104.198.125.254:8083/springapp:${VERSION}
+                            docker rmi 104.198.125.254:8083/springapp:${VERSION}
+                        '''
+                    }   
+                }
+            }
+        }
         stage('Identifying misconfig using Datree in helm chart'){
             steps{
                 script{
@@ -41,6 +41,21 @@ pipeline{
                             sh 'helm datree test myapp/'
                         } 
                     }
+                }
+            }
+        }
+        stage("Pushing the helm chart to Nexus"){
+            steps{
+                script{
+                    withCredentials([string(credentialsId: 'docker_pass', variable: 'docker-password')]) {
+                        dir('kubernetes/') {
+                            sh '''
+                                helmversion=$( helm show chart myapp | grep version | cut -d: -f 2 | tr -d ' ')
+                                tar -czvf myapp-${helmversion}.tgz myapp/
+                                curl -u admin:$docker-password http://104.198.125.254:8081/repository/helm-hosted/ --upload-file myapp-${helmversion}.tgz -v
+                            '''
+                        }
+                    }   
                 }
             }
         }
