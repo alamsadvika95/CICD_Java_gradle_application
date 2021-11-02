@@ -19,20 +19,20 @@ pipeline{
                 }
             }
         }
-        stage("Docker Build and Docker Push"){
-            steps{
-                script{
-                    withCredentials([string(credentialsId: 'docker_pass', variable: 'docker-password')]) {
-                        sh '''
-                            docker build -t 104.198.125.254:8083/springapp:${VERSION} . 
-                            docker login -u admin -p Sadvikaalam98 104.198.125.254:8083
-                            docker push 104.198.125.254:8083/springapp:${VERSION}
-                            docker rmi 104.198.125.254:8083/springapp:${VERSION}
-                        '''
-                    }   
-                }
-            }
-        }
+        // stage("Docker Build and Docker Push"){
+        //     steps{
+        //         script{
+        //             withCredentials([string(credentialsId: 'docker_pass', variable: 'docker-password')]) {
+        //                 sh '''
+        //                     docker build -t 104.198.125.254:8083/springapp:${VERSION} . 
+        //                     docker login -u admin -p Sadvikaalam98 104.198.125.254:8083
+        //                     docker push 104.198.125.254:8083/springapp:${VERSION}
+        //                     docker rmi 104.198.125.254:8083/springapp:${VERSION}
+        //                 '''
+        //             }   
+        //         }
+        //     }
+        // }
         stage('Identifying misconfig using Datree in helm chart'){
             steps{
                 script{
